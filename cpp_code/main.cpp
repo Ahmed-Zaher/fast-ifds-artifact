@@ -48,7 +48,7 @@ public:
 	}
 };
 
-const int TIMEOUT = 10;
+const int TIMEOUT = 600;
 
 int main() {
 #ifdef LOCAL
