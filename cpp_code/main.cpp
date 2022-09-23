@@ -7,10 +7,10 @@
 #include "algo_new.h"
 
 
-void stopClock(clock_t Time, string s = "") {
+void stopClock(double Time, string s = "") {
 
 	cout << "[" << s << "]" << " time taken = " <<
-	     double(clock() - Time) / CLOCKS_PER_SEC << " s" << endl;
+	     (omp_get_wtime() - Time) << " s" << endl;
 }
 
 class RowInExcelSheet {
@@ -48,11 +48,11 @@ public:
 	}
 };
 
-const int TIMEOUT = 6;
+const int TIMEOUT = 10;
 
 int main() {
 #ifdef LOCAL
-	auto stTime = clock();
+	auto stTime = omp_get_wtime();
 #endif
 	ios::sync_with_stdio(false);
 	cout << fixed;
@@ -90,8 +90,8 @@ int main() {
 
 
 	V<string> analyses;
-	// analyses.pb("reachability");
-	// analyses.pb("null_ptr");
+	analyses.pb("reachability");
+	analyses.pb("null_ptr");
 	analyses.pb("uninit_var");
 
 
@@ -100,7 +100,7 @@ int main() {
 		for (auto file: fileNames) {
 
 			cout << "------------------------------------------------------------------------------------\n";
-			db(file, analysis);
+			cout << file << ", " << analysis << endl;
 
 			RowInExcelSheet row;
 
@@ -251,7 +251,7 @@ int main() {
 
 			assert(m_G == sz(edgeListG));
 			assert(m_H == sz(edgeListH));
-			clock_t t = clock();
+			double t = omp_get_wtime();
 
 			IfdsInstance instance(n_G, n_H, m_G, m_H, D, edgeListG, edgeListH, flow, vertexTypeG, procOf, TWD,
 			                      TWD_root, TWD_par, par_tdH);
@@ -280,13 +280,13 @@ int main() {
 			db(instance.badProcPercentage);
 
 
-			t = clock();
+			t = omp_get_wtime();
 			algo_new alg(instance);
-			clock_t totClockCyclesPreprocessing = clock() - t;
+			double totClockCyclesPreprocessing = omp_get_wtime() - t;
 			stopClock(t, "Total preprocessing time");
 
 
-			row.preprocessing_time = ((long double) totClockCyclesPreprocessing) / CLOCKS_PER_SEC;
+			row.preprocessing_time = totClockCyclesPreprocessing;
 
 			{
 				vi returnSite(instance.n_G, -1);
@@ -306,9 +306,9 @@ int main() {
 
 
 			map<int, vi> querySet = instance.generateQuerySet();
-			clock_t totClockCyclesOld = 0;
-			clock_t totClockCyclesOldDemand = 0;
-			clock_t totClockCyclesAlg = 0;
+			double totClockCyclesOld = 0;
+			double totClockCyclesOldDemand = 0;
+			double totClockCyclesAlg = 0;
 			long double totBytesUsedOld = 0;
 			long double totBytesUsedDemand = 0;
 			int queryCntOld = 0;
@@ -318,13 +318,13 @@ int main() {
 			// passing queries to our algo
 			for (int U = 0; U < instance.n_GExp; ++U) {
 				for (auto& V : querySet[U]) {
-					t = clock();
+					t = omp_get_wtime();
 					bool ans = alg.query(U, V);
-					totClockCyclesAlg += clock() - t;
+					totClockCyclesAlg += omp_get_wtime() - t;
 				}
 			}
 
-			row.all_query_time = ((long double) totClockCyclesAlg) / CLOCKS_PER_SEC;
+			row.all_query_time = totClockCyclesAlg;
 
 			SimpleIfdsInstance simpleInstance = SimpleIfdsInstance(instance);
 
@@ -336,21 +336,21 @@ int main() {
 						++queryCntOld;
 						algo_old alg_oldie(&simpleInstance, U);
 						totClockCyclesOld += alg_oldie.runTime;
-						t = clock();
+						t = omp_get_wtime();
 						bool ansOld = alg_oldie.query(V);
-						totClockCyclesOld += clock() - t;
-						db(queryCntOld, double(alg_oldie.runTime) / CLOCKS_PER_SEC);
-						db(queryCntOld, double(totClockCyclesOld) / CLOCKS_PER_SEC);
-						if (((long double) totClockCyclesOld) / CLOCKS_PER_SEC > TIMEOUT)
+						totClockCyclesOld += omp_get_wtime() - t;
+						cout << "queryCntIfds = " << queryCntOld << ", query time = " << alg_oldie.runTime << endl;
+						cout << "queryCntIfds = " << queryCntOld << ", total query time = " << totClockCyclesOld << endl;
+						if (totClockCyclesOld > TIMEOUT)
 							break;
 					}
-					if (((long double) totClockCyclesOld) / CLOCKS_PER_SEC > TIMEOUT)
+					if (totClockCyclesOld > TIMEOUT)
 						break;
 				}
 
 
-			row.old_tot_time = ((long double) totClockCyclesOld) / CLOCKS_PER_SEC;
-			row.old_avg_query_time = ((long double) totClockCyclesOld) / CLOCKS_PER_SEC / queryCntOld;
+			row.old_tot_time = totClockCyclesOld;
+			row.old_avg_query_time = totClockCyclesOld / queryCntOld;
 
 
 
@@ -363,23 +363,24 @@ int main() {
 						++queryCntDemand;
 						algo_old_demand alg_oldie_demand(&simpleInstance, U);
 						totClockCyclesOldDemand += alg_oldie_demand.runTime;
-						t = clock();
+						t = omp_get_wtime();
 						bool ansOld = alg_oldie_demand.query(V);
-						totClockCyclesOldDemand += clock() - t;
+						totClockCyclesOldDemand += omp_get_wtime() - t;
 
-						db(queryCntDemand, double(alg_oldie_demand.runTime) / CLOCKS_PER_SEC);
-						db(queryCntDemand, double(totClockCyclesOldDemand) / CLOCKS_PER_SEC);
-						if (((long double) totClockCyclesOldDemand) / CLOCKS_PER_SEC > TIMEOUT)
+						cout << "queryCntDemand = " << queryCntDemand << ", query time = " << alg_oldie_demand.runTime << endl;
+						cout << "queryCntDemand = " << queryCntDemand << ", total query time = " << totClockCyclesOldDemand << endl;
+						db(queryCntDemand, totClockCyclesOldDemand);
+						if (totClockCyclesOldDemand > TIMEOUT)
 							break;
 					}
-					if (((long double) totClockCyclesOldDemand) / CLOCKS_PER_SEC > TIMEOUT)
+					if (totClockCyclesOldDemand > TIMEOUT)
 						break;
 				}
 
 
 
-			row.on_demand_tot_time = ((long double) totClockCyclesOldDemand) / CLOCKS_PER_SEC;
-			row.on_demand_avg_query_time = ((long double) totClockCyclesOldDemand) / CLOCKS_PER_SEC / queryCntDemand;
+			row.on_demand_tot_time = totClockCyclesOldDemand;
+			row.on_demand_avg_query_time = totClockCyclesOldDemand / queryCntDemand;
 
 
 
@@ -397,7 +398,7 @@ int main() {
 
 #ifdef LOCAL
 	cout << "\n\n\nExecution time: " <<
-	     (clock() - stTime) * 1e3 / CLOCKS_PER_SEC << " ms" << endl;
+	     (omp_get_wtime() - stTime) << " s" << endl;
 #endif
 	return 0;
 }

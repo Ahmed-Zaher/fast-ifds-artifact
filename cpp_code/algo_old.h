@@ -15,10 +15,10 @@ struct HashG_alg_old {
 
 class algo_old {
 public:
-	void stopClock(clock_t Time, string s = "") {
+	void stopClock(double Time, string s = "") {
 
 		cout << "[" << s << "]" << " time taken = " <<
-		     double(clock() - Time) / CLOCKS_PER_SEC << " s" << endl;
+		     (omp_get_wtime() - Time) << " s" << endl;
 	}
 
 	const int START_VERTEX = 0;
@@ -51,16 +51,16 @@ public:
 	V<si> X;  // X[u] for u in [0, n_G) is a set of elements taking values in [0, D[procOf[u]]], which
 	// are the set of data facts that hold at node u
 
-	clock_t timeForForwardTabulate;
-	clock_t runTime;
-	clock_t Time;
+	double timeForForwardTabulate;
+	double runTime;
+	double Time;
 
 
 
 
 	algo_old(SimpleIfdsInstance* instance, int _mainNodeInGExp)
 			: mainNodeInGExp(_mainNodeInGExp) {
-		Time = clock();
+		Time = omp_get_wtime();
 
 		FIRST_32BIT = (1ULL << 32) - 1;
 
@@ -167,7 +167,7 @@ public:
 
 		assert(vertexTypeG[revMapGExp[mainNodeInGExp].fs] == START_VERTEX);
 
-		// clock_t otherTime = clock();
+		// double otherTime = clock();
 		ForwardTabulateSLRPs();
 		// timeForForwardTabulate = clock() - otherTime;
 //		stopClock(Time, "ForwardTabulateSLRPs");
@@ -184,7 +184,7 @@ public:
 			}
 		}
 
-		runTime = clock() - Time;
+		runTime = omp_get_wtime() - Time;
 	}
 
 	void Propagate(pii e) {

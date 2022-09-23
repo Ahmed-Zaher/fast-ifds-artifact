@@ -10,10 +10,10 @@ int HashModG_alg_old_demand;
 
 class algo_old_demand {
 public:
-	void stopClock(clock_t Time, string s = "") {
+	void stopClock(double Time, string s = "") {
 
 		cout << "[" << s << "]" << " time taken = " <<
-		     double(clock() - Time) / CLOCKS_PER_SEC << " s" << endl;
+		     (omp_get_wtime() - Time) << " s" << endl;
 	}
 	/*
 	 * We'll do the implementation according to the conference version
@@ -49,9 +49,9 @@ public:
 
 	ull FIRST_32BIT;
 
-	clock_t timeForIsMemberOfSolution;
-	clock_t runTime;
-	clock_t Time;
+	double timeForIsMemberOfSolution;
+	double runTime;
+	double Time;
 
 
 
@@ -60,7 +60,7 @@ public:
 	algo_old_demand(SimpleIfdsInstance* instance, int _mainNodeInGExp)
 			: mainNodeInGExp(_mainNodeInGExp) {
 
-		Time = clock();
+		Time = omp_get_wtime();
 
 		FIRST_32BIT = (1ULL << 32) - 1;
 
@@ -151,10 +151,10 @@ public:
 				}
 			}
 		}
-		
+
 		ReachableNodes.insert(mainNodeInGExp);
-		
-		runTime = clock() - Time;
+
+		runTime = omp_get_wtime() - Time;
 	}
 
 	void addPathEdge(pii e) {
@@ -335,9 +335,9 @@ public:
 
 	bool query(int V) { // V in GExp, the V of a (U, V) queryUisStart, where U is fixed to be mainNodeInGExp
 
-		Time = clock();
+		Time = omp_get_wtime();
 		bool ans = IsMemberOfSolution(revMapGExp[V].fs, revMapGExp[V].sc);
-		timeForIsMemberOfSolution = clock() - Time;
+		timeForIsMemberOfSolution = omp_get_wtime() - Time;
 		return ans;
 	}
 

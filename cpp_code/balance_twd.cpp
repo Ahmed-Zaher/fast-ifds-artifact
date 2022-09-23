@@ -730,7 +730,7 @@ int main(int arc, char *argv[]) {
 		;
 
 		{
-			// take TWD from pace solver, overwrite JTDec one
+			// take TWD from pace solver
 			TWD.assign(n_H, vvi());
 			TWD_par.assign(n_H, vi());
 			TWD_root.assign(n_H, -1);
@@ -766,7 +766,7 @@ int main(int arc, char *argv[]) {
 							bags.back().pb(u);
 						}
 					}
-					assert(!bags.back().empty());
+					// assert(!bags.back().empty());
 				} else {
 					int u, v;
 					ss >> u >> v;

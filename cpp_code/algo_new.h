@@ -26,10 +26,10 @@ public:
 	const int CALL_VERTEX = 2;
 	const int RETURN_SITE_VERTEX = 3;
 
-	void stopClock(clock_t Time, string s = "") {
+	void stopClock(double Time, string s = "") {
 
 		cout << "[" << s << "]" << " time taken = " <<
-		     double(clock() - Time) / CLOCKS_PER_SEC << " s" << endl;
+		     (omp_get_wtime() - Time) << " s" << endl;
 	}
 
 
@@ -94,7 +94,7 @@ public:
 	// to f's definition in the paper.
 	vector<vector<int>> anc;    // anc[U] for U in HExp is the ancestors of U in treedepth dec. of HExp (not including U)
 
-	clock_t timeDiff;
+	double timeDiff;
 
 	algo_new(IfdsInstance _instance) : instance(_instance) {
 
@@ -123,7 +123,7 @@ public:
 		 * Step 0: finding callsGExp
 		 */
 
-		clock_t Time = clock();
+		double Time = omp_get_wtime();
 
 		buildCallsGExp();
 
@@ -134,7 +134,7 @@ public:
 		 * Step 3: finding LCA for treewidth decompositions
 		 */
 
-		Time = clock();
+		Time = omp_get_wtime();
 
 		TWDLCA.assign(n_H, LCA());
 
@@ -148,7 +148,7 @@ public:
 		 * Step 4: Computing GHat. Algorithm 1 in the ESOP paper
 		 * Takes a few seconds
 		 */
-		Time = clock();
+		Time = omp_get_wtime();
 
 		buildGHat();
 
@@ -157,7 +157,7 @@ public:
 		/*
 		 * Step 5: Local preprocessing
 		 */
-		Time = clock();
+		Time = omp_get_wtime();
 
 
 		computeTWD_adj();
@@ -275,7 +275,7 @@ public:
 		/*
 		 * Step 6: Ancestor preprocessing
 		 */
-		Time = clock();
+		Time = omp_get_wtime();
 
 		int mxBagDepth = 0;
 		for (int p = 0; p < n_H; ++p) {
@@ -315,7 +315,7 @@ public:
 
 		stopClock(Time, "Step 5.5: Ancestor preprocessing before RAncBit");
 
-		Time = clock();
+		Time = omp_get_wtime();
 
 		buildRAncBit();
 
@@ -325,7 +325,7 @@ public:
 		/*
 		 * Step 7: Computing HExp
 		 */
-		Time = clock();
+		Time = omp_get_wtime();
 
 		buildHExp();
 //		buildHExpDumb();
@@ -335,7 +335,7 @@ public:
 		/*
 		 * Step 8: Building par_tdHExp and its LCA
 		 */
-		Time = clock();
+		Time = omp_get_wtime();
 
 
 		buildPar_tdHExp();
@@ -377,13 +377,13 @@ public:
 		/*
 		 * Step 9: Building S
 		 */
-		Time = clock();
+		Time = omp_get_wtime();
 		buildS();
 		stopClock(Time, "Step 9: Building S");
 		/*
 		 * Step 10: Building F
 		 */
-		Time = clock();
+		Time = omp_get_wtime();
 		buildF();
 		stopClock(Time, "Step 10: Building F");
 	}
@@ -782,7 +782,7 @@ public:
 		int bagSz = sz(bag);
 		vector<int> vertexSet;
 
-		assert(sz(bag) <= 12);
+		// assert(sz(bag) <= 12);
 
 		for (int u : bag)
 			for (int d = 0; d <= D[procOf[u]]; ++d) {
