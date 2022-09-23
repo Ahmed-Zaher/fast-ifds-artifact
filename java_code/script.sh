@@ -1,3 +1,4 @@
+#!/bin/bash
 javac -cp lib/soot-4.3.0-jar-with-dependencies.jar *.java
 
 java -ea -cp .:lib/soot-4.3.0-jar-with-dependencies.jar FastIFDS avrora
