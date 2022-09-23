@@ -675,7 +675,7 @@ int main(int arc, char *argv[]) {
 	vi badProcCntV;
 	V<string> fileNames;
 
-	fileNames.pb("avrora.txt");
+      fileNames.pb("avrora.txt");
 	fileNames.pb("sunflow.txt");
 	fileNames.pb("fop.txt");
 	fileNames.pb("antlr.txt");
@@ -687,7 +687,7 @@ int main(int arc, char *argv[]) {
 	fileNames.pb("lusearch.txt");
 	fileNames.pb("pmd.txt");
 	fileNames.pb("xalan.txt");
-	fileNames.pb("avrora.txt");
+	fileNames.pb("hsqldb.txt");
 
 
 	string path = "../";

@@ -83,7 +83,7 @@ int main() {
 	fileNames.pb("lusearch.txt");
 	fileNames.pb("pmd.txt");
 	fileNames.pb("xalan.txt");
-	fileNames.pb("avrora.txt");
+	fileNames.pb("hsqldb.txt");
 
 
 	db(fileNames);
